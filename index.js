@@ -24,8 +24,8 @@ module.exports = function (args, opts) {
 	if (!opts) { opts = {}; }
 
 	var flags = {
-		bools: {},
-		strings: {},
+		bools: { __proto__: null },
+		strings: { __proto__: null },
 		unknownFn: null,
 	};
 
@@ -41,7 +41,7 @@ module.exports = function (args, opts) {
 		});
 	}
 
-	var aliases = {};
+	var aliases = { __proto__: null };
 
 	function isBooleanKey(key) {
 		if (flags.bools[key]) {
@@ -85,19 +85,29 @@ module.exports = function (args, opts) {
 	}
 
 	function setKey(obj, keys, value) {
+		// Protect positionals from being overwritten.
+		if (keys[0] === '_') { return; }
+
+		// Traverse the object to prepare for writing to nested keys, like for --foo.bar
 		var o = obj;
 		for (var i = 0; i < keys.length - 1; i++) {
 			var key = keys[i];
 			if (isConstructorOrProto(o, key)) { return; }
-			if (o[key] === undefined) { o[key] = {}; }
-			if (
-				o[key] === Object.prototype
-				|| o[key] === Number.prototype
-				|| o[key] === String.prototype
-			) {
-				o[key] = {};
+			var container = Object.prototype.hasOwnProperty.call(o, key) ? o[key] : undefined;
+			// Create container object if needed so can write to container[nextKey].
+			if (container === null || typeof container !== 'object') {
+				container = {};
 			}
-			if (o[key] === Array.prototype) { o[key] = []; }
+			// Paranoid check for unsafe objects.
+			if (
+				container === Object.prototype
+				|| container === Number.prototype
+				|| container === String.prototype
+			) {
+				container = {};
+			}
+			if (container === Array.prototype) { container = []; }
+			o[key] = container;
 			o = o[key];
 		}
 
@@ -110,13 +120,14 @@ module.exports = function (args, opts) {
 		) {
 			o = {};
 		}
+		var lastValue = Object.prototype.hasOwnProperty.call(o, lastKey) ? o[lastKey] : undefined;
 		if (o === Array.prototype) { o = []; }
-		if (o[lastKey] === undefined || isBooleanKey(lastKey) || typeof o[lastKey] === 'boolean') {
+		if (lastValue === undefined || isBooleanKey(lastKey) || typeof lastValue === 'boolean') {
 			o[lastKey] = value;
-		} else if (Array.isArray(o[lastKey])) {
-			o[lastKey].push(value);
+		} else if (Array.isArray(lastValue)) {
+			lastValue.push(value);
 		} else {
-			o[lastKey] = [o[lastKey], value];
+			o[lastKey] = [lastValue, value];
 		}
 	}
 

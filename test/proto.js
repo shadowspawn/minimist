@@ -42,8 +42,7 @@ test('proto pollution (number)', function (t) {
 	var argv = parse(['--x', '5', '--x.__proto__.z', '100']);
 	t.equal({}.z, undefined);
 	t.equal((4).z, undefined);
-	t.equal(argv.x, 5);
-	t.equal(argv.x.z, undefined);
+	t.deepEqual(argv.x, {});
 	t.end();
 });
 
@@ -51,8 +50,7 @@ test('proto pollution (string)', function (t) {
 	var argv = parse(['--x', 'abc', '--x.__proto__.z', 'def']);
 	t.equal({}.z, undefined);
 	t.equal('...'.z, undefined);
-	t.equal(argv.x, 'abc');
-	t.equal(argv.x.z, undefined);
+	t.deepEqual(argv.x, {});
 	t.end();
 });
 
