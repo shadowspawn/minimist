@@ -32,7 +32,7 @@ test('proto pollution', function (t) {
 test('proto pollution (array)', function (t) {
 	var argv = parse(['--x', '4', '--x', '5', '--x.__proto__.z', '789']);
 	t.equal({}.z, undefined);
-	t.deepEqual(argv.x, [4, 5]);
+	t.deepEqual(argv.x, {});
 	t.equal(argv.x.z, undefined);
 	t.equal(argv.x.__proto__.z, undefined);
 	t.end();

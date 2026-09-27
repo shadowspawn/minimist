@@ -35,29 +35,40 @@ test('dotted array', function (t) {
 	t.end();
 });
 
-test('dotted access to previous number does not throw', function (t) {
+test('dotted access over previous number does not throw and replaces', function (t) {
 	t.doesNotThrow(function () {
 		var argv = parse(['--a', '11', '--a.b', 'VALUE']);
 		// overwrites, previous value not retained
-		t.equal(argv.a.b, 'VALUE');
+		t.deepEqual(argv.a, { b: 'VALUE' });
 	});
 	t.end();
 });
 
-test('dotted access to previous string does not throw', function (t) {
+test('dotted access over previous string does not throw and replaces', function (t) {
 	t.doesNotThrow(function () {
 		var argv = parse(['--a', 'AA', '--a.b', 'VALUE']);
 		// overwrites, previous value not retained
-		t.equal(argv.a.b, 'VALUE');
+		t.deepEqual(argv.a, { b: 'VALUE' });
 	});
 	t.end();
 });
 
-test('dotted access to _ does not throw', function (t) {
+test('dotted access over previous array does not throw and replaces', function (t) {
 	t.doesNotThrow(function () {
-		var argv = parse(['ARG', '--a', 'one', '--a', 'two', '--_.length=100', '--_.extra=EXTRA']);
-		// ignoring dotted access to _
-		t.deepEqual(argv._, ['ARG']);
+		var argv = parse(['--a', 'XX', '--a', 'YY', '--a.b', 'VALUE']);
+		// overwrites, previous value not retained
+		t.deepEqual(argv.a, { b: 'VALUE' });
 	});
 	t.end();
 });
+
+test('dotted access to _ does not throw and ignored', function (t) {
+	t.doesNotThrow(function () {
+		var argv = parse(['ARG', '--_.length=100', '--_.extra=EXTRA']);
+		// ignoring dotted access to _
+		t.deepEqual(argv._, ['ARG']);
+		t.equal(argv._.extra, undefined);
+	});
+	t.end();
+});
+

@@ -93,11 +93,13 @@ module.exports = function (args, opts) {
 		for (var i = 0; i < keys.length - 1; i++) {
 			var key = keys[i];
 			if (isConstructorOrProto(o, key)) { return; }
-			var container = Object.prototype.hasOwnProperty.call(o, key) ? o[key] : undefined;
+
 			// Create container object if needed so can write to container[nextKey].
-			if (container === null || typeof container !== 'object') {
+			var container = Object.prototype.hasOwnProperty.call(o, key) ? o[key] : undefined;
+			if (container === null || typeof container !== 'object' || Array.isArray(container)) {
 				container = {};
 			}
+
 			// Paranoid check for unsafe objects.
 			if (
 				container === Object.prototype
@@ -107,6 +109,7 @@ module.exports = function (args, opts) {
 				container = {};
 			}
 			if (container === Array.prototype) { container = []; }
+
 			o[key] = container;
 			o = o[key];
 		}
