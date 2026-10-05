@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-magic-numbers */
+
 function hasKey(obj, keys) {
 	var o = obj;
 	keys.slice(0, -1).forEach(function (key) {
