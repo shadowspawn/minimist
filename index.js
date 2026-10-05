@@ -95,6 +95,7 @@ module.exports = function (args, opts) {
 			if (isConstructorOrProto(o, key)) { return; }
 
 			// Create container object if needed so can write to container[nextKey].
+			// Overwrite (discard) previous values that are not plain objects: boolean, number, string, array.
 			var container = Object.prototype.hasOwnProperty.call(o, key) ? o[key] : undefined;
 			if (container === null || typeof container !== 'object' || Array.isArray(container)) {
 				container = {};
