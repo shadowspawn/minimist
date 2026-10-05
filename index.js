@@ -101,31 +101,13 @@ module.exports = function (args, opts) {
 				container = {};
 			}
 
-			// Paranoid check for unsafe objects.
-			if (
-				container === Object.prototype
-				|| container === Number.prototype
-				|| container === String.prototype
-			) {
-				container = {};
-			}
-			if (container === Array.prototype) { container = []; }
-
 			o[key] = container;
 			o = o[key];
 		}
 
 		var lastKey = keys[keys.length - 1];
 		if (isConstructorOrProto(o, lastKey)) { return; }
-		if (
-			o === Object.prototype
-			|| o === Number.prototype
-			|| o === String.prototype
-		) {
-			o = {};
-		}
 		var lastValue = Object.prototype.hasOwnProperty.call(o, lastKey) ? o[lastKey] : undefined;
-		if (o === Array.prototype) { o = []; }
 		if (lastValue === undefined || isBooleanKey(lastKey) || typeof lastValue === 'boolean') {
 			o[lastKey] = value;
 		} else if (Array.isArray(lastValue)) {
